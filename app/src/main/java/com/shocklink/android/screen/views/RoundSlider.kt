@@ -1,5 +1,3 @@
-import android.util.Log
-import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.forEachGesture
@@ -16,7 +14,6 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -28,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
+import java.text.DecimalFormat
 import kotlin.math.*
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTextApi::class)
@@ -42,7 +40,9 @@ fun CircularSlider(
     progressColor: Color = Color.Magenta,
     backgroundColor: Color = Color.DarkGray,
     textColor: Color = Color.DarkGray,
-    maxValue: Int = 100,
+    maxValue: Float = 100f,
+    minValue: Float = 0f,
+    numbersAfterComma: Int = 0,
     debug: Boolean = false,
     onChange: ((Float)->Unit)? = null
 ){
@@ -58,7 +58,7 @@ fun CircularSlider(
     val textMeasurer = rememberTextMeasurer()
 
     val textLayoutResult: TextLayoutResult =
-        textMeasurer.measure(text = AnnotatedString(((appliedAngle/300f) * maxValue).roundToInt().toString()))
+        textMeasurer.measure(text = AnnotatedString(getStringFromValue(getValue(appliedAngle, maxValue, minValue), numbersAfterComma)))
     val textSizeX = textLayoutResult.size.times(3)
     LaunchedEffect(key1 = angle){
         var a = angle
@@ -74,7 +74,7 @@ fun CircularSlider(
         appliedAngle = a
     }
     LaunchedEffect(key1 = appliedAngle){
-        onChange?.invoke((appliedAngle/300f) * maxValue)
+        onChange?.invoke(getValue(appliedAngle, maxValue, minValue))
     }
     Canvas(
         modifier = modifier
@@ -82,7 +82,7 @@ fun CircularSlider(
                 width = it.size.width
                 height = it.size.height
                 center = Offset(width / 2f, height / 2f)
-                radius = min(width.toFloat(), height.toFloat()) / 2f - padding - stroke/2f
+                radius = min(width.toFloat(), height.toFloat()) / 2f - padding - stroke / 2f
             }
             .pointerInput(Unit) {
                 forEachGesture {
@@ -149,7 +149,7 @@ fun CircularSlider(
         )
         drawText(
             textMeasurer = textMeasurer,
-            text = ((appliedAngle/300f) * maxValue).roundToInt().toString(),
+            text = getStringFromValue(getValue(appliedAngle, maxValue, minValue), numbersAfterComma),
             topLeft = Offset(
                 (width - textSizeX.width) / 2f,
                 (height - textSizeX.height) / 2f
@@ -209,6 +209,23 @@ fun distance(first: Offset, second: Offset) : Float{
 }
 fun Float.square(): Float{
     return this*this
+}
+
+fun getValue(appliedAngle: Float, maxValue: Float, minValue: Float):Float {
+    val value = (appliedAngle/300f) * maxValue
+    if(value < minValue)
+        return minValue
+    return value
+}
+
+fun getStringFromValue(value: Float, numbersAfterComma: Int):String {
+    return if(numbersAfterComma == 0){
+        value.roundToInt().toString()
+    }
+    else{
+        val formatter = DecimalFormat("0.0")
+        formatter.format(value)
+    }
 }
 
 @Preview(showBackground = true)

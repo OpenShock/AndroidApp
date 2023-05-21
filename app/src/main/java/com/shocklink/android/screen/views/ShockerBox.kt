@@ -101,7 +101,8 @@ fun ShockerBox(
                             modifier = Modifier
                                 .size(((dpWidth / 2) - 8).dp)
                                 ,
-                            maxValue = 100,
+                            maxValue = 100f,
+                            minValue = 1f,
                             textColor = MaterialTheme.colorScheme.onSurface ,
                             progressColor = MaterialTheme.colorScheme.primary
                         )
@@ -116,7 +117,9 @@ fun ShockerBox(
                             modifier = Modifier
                                 .size(((dpWidth / 2) - 8).dp)
                                 .align(Alignment.End),
-                            maxValue = 30,
+                            maxValue = 30f,
+                            minValue = 0.3f,
+                            numbersAfterComma = 1,
                             textColor = MaterialTheme.colorScheme.onSurface,
                             progressColor = MaterialTheme.colorScheme.primary
                         )
