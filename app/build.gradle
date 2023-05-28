@@ -71,4 +71,5 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation 'androidx.security:security-crypto:1.0.0'
     implementation 'com.microsoft.signalr:signalr:7.0.0'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
 }

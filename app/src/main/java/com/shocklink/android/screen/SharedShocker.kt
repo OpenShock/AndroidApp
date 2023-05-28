@@ -12,25 +12,29 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.shocklink.android.R
 import com.shocklink.android.screen.views.ShockerBox
 import com.shocklink.android.viewmodels.ShockerViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SharedShockerPage(navController: NavHostController, viewModel: ShockerViewModel, context: Context) {
     val shockerApiResponse by viewModel.shockerSharedApiResponse.observeAsState()
-
+    val onlineDevices by viewModel.onlineDevices.observeAsState()
     LaunchedEffect(Unit) {
         viewModel.fetchShockerSharedApiResponse()
     }
@@ -53,12 +57,24 @@ fun SharedShockerPage(navController: NavHostController, viewModel: ShockerViewMo
                                 Modifier
                                     .fillMaxWidth()
                                     .wrapContentHeight()) {
-                                Text(
-                                    text = user.name  + " - " + device.name,
-                                    color = MaterialTheme.colorScheme.onBackground)
+                                Row() {
+                                    Text(
+                                        text = user.name  + " - " + device.name,
+                                        color = MaterialTheme.colorScheme.onBackground)
+                                    val isDeviceOnline by remember(device.id){
+                                        derivedStateOf {
+                                            onlineDevices?.any { it.device == device.id}
+                                        }
+                                    }
+                                    Icon(
+                                        painterResource(R.drawable.baseline_circle_24),
+                                        contentDescription = "Online State",
+                                        tint = if(isDeviceOnline == true) Color.Green else Color.Red )
+                                }
                                 for(shocker in device.shockers){
                                     ShockerBox(context = context, shocker)
                                 }
+
                             }
                         }
                     }
