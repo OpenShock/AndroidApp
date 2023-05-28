@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.shocklink.android.R
+import com.shocklink.android.api.models.ControlType
 import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
 
@@ -50,10 +51,14 @@ import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
 @Composable
 fun ShockerBox(
     context: Context,
-    shocker: Shocker) {
+    shocker: Shocker,
+    ownShocker: Boolean,
+    onEventClicked: (shocker: Shocker, mode: ControlType, duration: UInt, intensity: Byte) -> Unit) {
     val displayMetrics = context.resources.displayMetrics
     val dpWidth = displayMetrics.widthPixels / displayMetrics.density
     var expanded by remember { mutableStateOf(false) }
+    var duration: UInt = 300u
+    var intensity: Byte = 1
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,7 +109,8 @@ fun ShockerBox(
                             maxValue = 100f,
                             minValue = 1f,
                             textColor = MaterialTheme.colorScheme.onSurface ,
-                            progressColor = MaterialTheme.colorScheme.primary
+                            progressColor = MaterialTheme.colorScheme.primary,
+                            onChange = { fl: Float -> intensity = fl.toInt().toByte() }
                         )
                         Text(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -121,7 +127,8 @@ fun ShockerBox(
                             minValue = 0.3f,
                             numbersAfterComma = 1,
                             textColor = MaterialTheme.colorScheme.onSurface,
-                            progressColor = MaterialTheme.colorScheme.primary
+                            progressColor = MaterialTheme.colorScheme.primary,
+                            onChange = { fl: Float -> duration = (fl * 1000).toUInt()}
                         )
                         Text(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -137,14 +144,14 @@ fun ShockerBox(
                 ) {
 
                     IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {onEventClicked(shocker, ControlType.Beep, duration, intensity)},
                         modifier = Modifier
                         .padding(6.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(15.dp)
                         ),
-                        enabled = shocker.permSound) {
+                        enabled = shocker.permSound || ownShocker) {
                         Icon(
                             painterResource(R.drawable.baseline_volume_up_24),
                             "Beep",
@@ -152,14 +159,14 @@ fun ShockerBox(
                         )
                     }
                     IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {onEventClicked(shocker, ControlType.Vibrate, duration, intensity)},
                         modifier = Modifier
                         .padding(6.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(15.dp)
                         ),
-                        enabled = shocker.permVibrate) {
+                        enabled = shocker.permVibrate || ownShocker) {
                         Icon(
                             painterResource(R.drawable.baseline_waves_24),
                             "Vibrate",
@@ -167,14 +174,14 @@ fun ShockerBox(
                         )
                     }
                     IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {onEventClicked(shocker, ControlType.Shock, duration, intensity)},
                         modifier = Modifier
                         .padding(6.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(15.dp)
                         ),
-                        enabled = shocker.permShock) {
+                        enabled = shocker.permShock || ownShocker) {
                         Icon(
                             painterResource(R.drawable.baseline_bolt_24),
                             "Shock",

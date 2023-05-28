@@ -1,6 +1,7 @@
 package com.shocklink.android.api
 
 import android.content.Context
+import android.util.Log
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import com.shocklink.android.util.TokenManager
@@ -12,7 +13,7 @@ class UserHubClient private constructor() {
         fun create(context: Context): HubConnection {
             val hub = HubConnectionBuilder.create(URL).withHeader("ShockLinkSession", TokenManager.getToken(context)?: "").build()
             hub.onClosed { exception ->
-                // Handle connection closed event
+                Log.e("UserHubClient", exception.stackTraceToString())
             }
             return hub
         }

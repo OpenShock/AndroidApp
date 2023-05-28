@@ -11,6 +11,8 @@ import com.microsoft.signalr.Action1
 import com.microsoft.signalr.HubConnection
 import com.shocklink.android.api.ApiClient
 import com.shocklink.android.api.UserHubClient
+import com.shocklink.android.api.models.Control
+import com.shocklink.android.api.models.ControlType
 import com.shocklink.android.api.models.DeviceOnlineState
 import com.shocklink.android.api.models.ShockerResponse
 import com.shocklink.android.api.models.ShockerSharedResponse
@@ -67,6 +69,11 @@ class ShockerViewModel(private val context: Context) : ViewModel() {
                 Log.e("ShockerViewModel", e.toString())
             }
         }
+    }
+
+    fun sendCommand(id: String, type: ControlType, duration: UInt, intensity: Byte){
+        hubConnection.send("Control",
+            listOf(Control(id, type.controlType, intensity, duration)))
     }
 
     init {

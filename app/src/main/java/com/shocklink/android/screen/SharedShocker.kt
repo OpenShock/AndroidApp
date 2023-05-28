@@ -28,6 +28,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shocklink.android.R
+import com.shocklink.android.api.models.ControlType
+import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.screen.views.ShockerBox
 import com.shocklink.android.viewmodels.ShockerViewModel
 
@@ -72,7 +74,9 @@ fun SharedShockerPage(navController: NavHostController, viewModel: ShockerViewMo
                                         tint = if(isDeviceOnline == true) Color.Green else Color.Red )
                                 }
                                 for(shocker in device.shockers){
-                                    ShockerBox(context = context, shocker)
+                                    ShockerBox(context = context, shocker, false, onEventClicked = { shockerB: Shocker, controlType: ControlType, duration: UInt, intensity: Byte ->
+                                        viewModel.sendCommand(shockerB.id, controlType, duration, intensity)
+                                    })
                                 }
 
                             }

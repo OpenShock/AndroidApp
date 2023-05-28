@@ -21,12 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.shocklink.android.api.models.ControlType
+import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.screen.views.ShockerBox
 import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
 import com.shocklink.android.viewmodels.ShockerViewModel
@@ -60,7 +61,9 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
                                 text = element.name,
                                 color = MaterialTheme.colorScheme.onBackground)
                             for(shocker in element.shockers){
-                                ShockerBox(context = context, shocker)
+                                ShockerBox(context = context, shocker, true, onEventClicked = { shockerB: Shocker, controlType: ControlType, duration: UInt, intensity: Byte ->
+                                    viewModel.sendCommand(shockerB.id, controlType, duration, intensity)
+                                })
                             }
                         }
                     }
