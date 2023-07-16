@@ -12,7 +12,7 @@ class ApiClient private constructor() {
         private const val BASE_URL = "https://api.shocklink.net/1/"
 
         private fun create(context: Context): Retrofit {
-            val authInterceptor = AuthInterceptor(TokenManager.getToken(context)?: "")
+            val authInterceptor = AuthInterceptor(context)
 
             val okHttpClient: OkHttpClient = OkHttpClient.Builder()
                 .addInterceptor(authInterceptor)

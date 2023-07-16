@@ -6,9 +6,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.google.gson.reflect.TypeToken
 import com.microsoft.signalr.Action1
 import com.microsoft.signalr.HubConnection
+import com.microsoft.signalr.HubConnectionState
+import com.shocklink.android.Routes
 import com.shocklink.android.api.ApiClient
 import com.shocklink.android.api.UserHubClient
 import com.shocklink.android.api.models.Control
@@ -16,10 +19,11 @@ import com.shocklink.android.api.models.ControlType
 import com.shocklink.android.api.models.DeviceOnlineState
 import com.shocklink.android.api.models.ShockerResponse
 import com.shocklink.android.api.models.ShockerSharedResponse
+import com.shocklink.android.util.TokenManager
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 
-class ShockerViewModel(private val context: Context) : ViewModel() {
+class ShockerViewModel(private val context: Context, private val navController: NavController) : ViewModel() {
 
     private val _tabIndex: MutableLiveData<Int> = MutableLiveData(0)
     val tabIndex: LiveData<Int>
@@ -72,8 +76,8 @@ class ShockerViewModel(private val context: Context) : ViewModel() {
     }
 
     fun sendCommand(id: String, type: ControlType, duration: UInt, intensity: Byte){
-        hubConnection.send("Control",
-            listOf(Control(id, type.controlType, intensity, duration)))
+        hubConnection.send("ControlV2",
+            listOf(Control(id, type.controlType, intensity, duration)), null)
     }
 
     init {
@@ -85,8 +89,17 @@ class ShockerViewModel(private val context: Context) : ViewModel() {
         this.hubConnection = UserHubClient.create(context = context)
 
         val objectType: Type = object : TypeToken<MutableList<DeviceOnlineState>>() {}.type
-        hubConnection.on("DeviceStatus", Action1 {devices: MutableList<DeviceOnlineState> ->  _onlineDevices.postValue(devices)}, objectType)
-
+        hubConnection.on(
+            "DeviceStatus",
+            Action1 { devices: MutableList<DeviceOnlineState> ->
+                _onlineDevices.postValue(devices)
+            },
+            objectType
+        )
         hubConnection.start().blockingAwait()
+        if(hubConnection.connectionState != HubConnectionState.CONNECTED) {
+            TokenManager.clearToken(context)
+            navController.navigate(Routes.Login.route)
+        }
     }
 }

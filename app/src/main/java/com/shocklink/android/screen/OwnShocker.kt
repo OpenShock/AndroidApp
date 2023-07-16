@@ -89,6 +89,6 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
 @Composable
 fun Preview() {
     ShockLinkAndroidTheme {
-        OwnShockerPage( rememberNavController(), ShockerViewModel(LocalContext.current), LocalContext.current)
+        OwnShockerPage( rememberNavController(), ShockerViewModel(LocalContext.current, rememberNavController()), LocalContext.current)
     }
 }

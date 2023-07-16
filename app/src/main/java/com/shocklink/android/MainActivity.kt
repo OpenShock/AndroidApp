@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 val hasToken = TokenManager.getToken(application) != null
                 NavHost(navController = navController, startDestination = if(!hasToken) "Login" else "Shocker" ) {
                     composable(Routes.Login.route) { LoginPage(navController = navController, viewModel = LoginViewModel(application = application))}
-                    composable(Routes.Shocker.route) { ShockerPage(navController = navController, ShockerViewModel(application)) }
+                    composable(Routes.Shocker.route) { ShockerPage(navController = navController, ShockerViewModel(application, navController)) }
                 }
             }
         }
