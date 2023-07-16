@@ -45,6 +45,12 @@ import com.shocklink.android.R
 import com.shocklink.android.api.models.ControlType
 import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
+import java.lang.Math.ceil
+import java.lang.Math.round
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +116,9 @@ fun ShockerBox(
                             minValue = 1f,
                             textColor = MaterialTheme.colorScheme.onSurface ,
                             progressColor = MaterialTheme.colorScheme.primary,
-                            onChange = { fl: Float -> intensity = fl.toInt().toByte() }
+                            onChange = {
+                                    fl: Float -> intensity = fl.toInt().toByte()
+                            }
                         )
                         Text(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -128,7 +136,9 @@ fun ShockerBox(
                             numbersAfterComma = 1,
                             textColor = MaterialTheme.colorScheme.onSurface,
                             progressColor = MaterialTheme.colorScheme.primary,
-                            onChange = { fl: Float -> duration = (fl * 1000).toUInt()}
+                            onChange = {
+                                    fl: Float -> duration = roundNumberAndReturnUInt(fl)
+                            }
                         )
                         Text(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -192,6 +202,11 @@ fun ShockerBox(
             }
         }
     }
+}
+
+fun roundNumberAndReturnUInt(value: Float): UInt {
+    val formatter = DecimalFormat("0.0")
+    return (formatter.format(value).toFloat() * 1000).toUInt()
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES,showBackground = true)
