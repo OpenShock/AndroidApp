@@ -19,7 +19,7 @@ class AuthInterceptor(private val context: Context) : Interceptor {
             .build()
 
         val response = chain.proceed(modifiedRequest)
-        if(!response.code() == 401){
+        if(response.code() == 401){
             TokenManager.clearToken(context)
         }
 
