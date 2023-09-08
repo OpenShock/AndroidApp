@@ -10,6 +10,7 @@ data class Shocker(
     val rfId: Int,
     val name: String,
     val createdOn: String,
+    val isPaused: Boolean,
     val permSound: Boolean = true,
     val permVibrate: Boolean = true,
     val permShock: Boolean= true

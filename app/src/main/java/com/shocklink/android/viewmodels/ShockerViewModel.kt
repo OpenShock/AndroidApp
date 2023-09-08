@@ -2,6 +2,7 @@ package com.shocklink.android.viewmodels
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.google.gson.reflect.TypeToken
 import com.microsoft.signalr.Action1
+import com.microsoft.signalr.HttpRequestException
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionState
 import com.shocklink.android.Routes
@@ -96,8 +98,18 @@ class ShockerViewModel(private val context: Context, private val navController: 
             },
             objectType
         )
-        hubConnection.start().blockingAwait()
+        try {
+            hubConnection.start().blockingAwait()
+        }
+        catch(exception: HttpRequestException) {
+            if(exception.statusCode == 401){
+                TokenManager.clearToken(context)
+                navController.navigate(Routes.Login.route)
+                Toast.makeText(context, "Your session expired, logging you out.", Toast.LENGTH_SHORT).show()
+            }
+        }
         if(hubConnection.connectionState != HubConnectionState.CONNECTED) {
+            //Check for internet and everything
             TokenManager.clearToken(context)
             navController.navigate(Routes.Login.route)
         }
