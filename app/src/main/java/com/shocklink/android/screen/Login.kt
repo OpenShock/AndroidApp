@@ -61,12 +61,16 @@ fun LoginPage(navController: NavHostController, viewModel: LoginViewModel){
         when (status) {
             is LoginStatus.Success -> {
                 navController.navigate(Routes.Shocker.route)
+                viewModel.resetLogin()
                 loginGoingOn.value = false
             }
 
             is LoginStatus.Failure -> {
+
                 loginGoingOn.value = false
             }
+
+            is LoginStatus.Default -> {}
         }
     }
     Box(

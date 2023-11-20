@@ -15,7 +15,7 @@ class AuthInterceptor(private val context: Context) : Interceptor {
         }
 
         val modifiedRequest: Request = originalRequest.newBuilder()
-            .header("ShockLinkSession", TokenManager.getToken(context)?: "")
+            .header("Cookie", ("openShockSession=" + TokenManager.getToken(context)) ?: "")
             .build()
 
         val response = chain.proceed(modifiedRequest)

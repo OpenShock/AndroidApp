@@ -3,6 +3,7 @@ package com.shocklink.android.util
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import java.io.Console
 
 object TokenManager {
     private const val PREF_NAME = "encrypted_prefs"

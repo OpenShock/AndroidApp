@@ -61,7 +61,8 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
                                 text = element.name,
                                 color = MaterialTheme.colorScheme.onBackground)
                             for(shocker in element.shockers){
-                                ShockerBox(context = context, shocker, true, onEventClicked = { shockerB: Shocker, controlType: ControlType, duration: UInt, intensity: Byte ->
+                                ShockerBox(context = context, shocker, true, onEventClicked =
+                                { shockerB: Shocker, controlType: ControlType, duration: UInt, intensity: Byte ->
                                     viewModel.sendCommand(shockerB.id, controlType, duration, intensity)
                                 })
                             }

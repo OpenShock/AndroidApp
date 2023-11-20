@@ -16,7 +16,6 @@ class ApiClient private constructor() {
 
             val okHttpClient: OkHttpClient = OkHttpClient.Builder()
                 .addInterceptor(authInterceptor)
-                // Add any other interceptors or configurations as needed
                 .build()
 
             return Retrofit.Builder()

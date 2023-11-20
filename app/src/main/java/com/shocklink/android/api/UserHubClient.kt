@@ -11,7 +11,7 @@ class UserHubClient private constructor() {
     companion object {
         private const val URL = "https://api.shocklink.net/1/hubs/user"
         fun create(context: Context): HubConnection {
-            val hub = HubConnectionBuilder.create(URL).withHeader("ShockLinkSession", TokenManager.getToken(context)?: "").build()
+            val hub = HubConnectionBuilder.create(URL).withHeader("Cookie", "openShockSession=" + TokenManager.getToken(context)?: "").build()
             hub.onClosed { exception ->
                 Log.e("UserHubClient", exception.stackTraceToString())
             }
