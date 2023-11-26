@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -46,8 +47,8 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
                 Modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background)
-                    .verticalScroll(rememberScrollState())){
-                for (element in shockerApiResponse!!.data){
+                   /*.verticalScroll(rememberScrollState())*/){
+                for (element in shockerApiResponse!!){
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -61,9 +62,11 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
                                 text = element.name,
                                 color = MaterialTheme.colorScheme.onBackground)
                             for(shocker in element.shockers){
-                                ShockerBox(context = context, shocker, true, onEventClicked =
+                                ShockerBox(context = context, shocker, ownShocker = true, onEventClicked =
                                 { shockerB: Shocker, controlType: ControlType, duration: UInt, intensity: Byte ->
                                     viewModel.sendCommand(shockerB.id, controlType, duration, intensity)
+                                }, onPauseClicked = { id: String, pause: Boolean ->
+                                    viewModel.pauseShocker(id, pause)
                                 })
                             }
                         }

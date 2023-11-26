@@ -18,10 +18,16 @@ import com.shocklink.android.api.ApiClient
 import com.shocklink.android.api.UserHubClient
 import com.shocklink.android.api.models.Control
 import com.shocklink.android.api.models.ControlType
+import com.shocklink.android.api.models.Device
 import com.shocklink.android.api.models.DeviceOnlineState
+import com.shocklink.android.api.models.PauseRequest
 import com.shocklink.android.api.models.ShockerResponse
 import com.shocklink.android.api.models.ShockerSharedResponse
+import com.shocklink.android.api.models.User
 import com.shocklink.android.util.TokenManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 
@@ -36,14 +42,14 @@ class ShockerViewModel(private val context: Context, private val navController: 
         _tabIndex.value = i
     }
 
-    private val _shockerApiResponse: MutableLiveData<ShockerResponse>
-    private val _shockerSharedApiResponse: MutableLiveData<ShockerSharedResponse>
+    private val _shockerApiResponse: MutableLiveData<List<Device>>
+    private val _shockerSharedApiResponse: MutableLiveData<List<User>>
     private val _onlineDevices: MutableLiveData<MutableList<DeviceOnlineState>>
     private val hubConnection: HubConnection
-    val ownShockerApiResponse: LiveData<ShockerResponse> get() = _shockerApiResponse
+    val ownShockerApiResponse: MutableLiveData<List<Device>> get() = _shockerApiResponse
 
-    val onlineDevices: LiveData<MutableList<DeviceOnlineState>> get() =_onlineDevices
-    val shockerSharedApiResponse: LiveData<ShockerSharedResponse> get() = _shockerSharedApiResponse
+    val onlineDevices: MutableLiveData<MutableList<DeviceOnlineState>> get() =_onlineDevices
+    val shockerSharedApiResponse: MutableLiveData<List<User>> get() = _shockerSharedApiResponse
 
     fun fetchOwnShockerApiResponse() {
         viewModelScope.launch {
@@ -51,7 +57,7 @@ class ShockerViewModel(private val context: Context, private val navController: 
                 val response = ApiClient.getShockerApiService(context).ownShocker()
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
-                    _shockerApiResponse.value = apiResponse
+                    _shockerApiResponse.value = apiResponse?.data!!
                 } else {
                     // Handle error case
                 }
@@ -67,7 +73,33 @@ class ShockerViewModel(private val context: Context, private val navController: 
                 val response = ApiClient.getShockerApiService(context).sharedShocker()
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
-                    _shockerSharedApiResponse.value = apiResponse
+                    _shockerSharedApiResponse.value = apiResponse?.data
+                } else {
+                    // Handle error case
+                }
+            } catch (e: Exception) {
+                Log.e("ShockerViewModel", e.toString())
+            }
+        }
+    }
+
+    fun pauseShocker(id: String, pause: Boolean) {
+        viewModelScope.launch {
+            try {
+                val response = ApiClient.getShockerApiService(context).pauseShocker(shockerId = id, PauseRequest(pause))
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    val currentDevices = _shockerApiResponse.value
+
+                    val updatedDevices = currentDevices?.map { device ->
+                        val updatedShockers = device.shockers.map { shocker ->
+                            if (shocker.id == id) shocker.copy(isPaused = apiResponse!!.data) else shocker
+                        }
+                        device.copy(shockers = updatedShockers)
+                    }
+
+                    _shockerApiResponse.postValue(updatedDevices)
+
                 } else {
                     // Handle error case
                 }
@@ -85,8 +117,8 @@ class ShockerViewModel(private val context: Context, private val navController: 
     init {
         this.tabIndex = _tabIndex
         this.tabs = listOf("Own", "Shared")
-        this._shockerApiResponse = MutableLiveData<ShockerResponse>()
-        this._shockerSharedApiResponse = MutableLiveData<ShockerSharedResponse>()
+        this._shockerApiResponse = MutableLiveData<List<Device>>()
+        this._shockerSharedApiResponse = MutableLiveData<List<User>>()
         this._onlineDevices = MutableLiveData<MutableList<DeviceOnlineState>>()
         this.hubConnection = UserHubClient.create(context = context)
 

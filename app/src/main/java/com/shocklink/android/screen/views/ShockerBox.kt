@@ -31,7 +31,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +49,7 @@ import com.shocklink.android.R
 import com.shocklink.android.api.models.ControlType
 import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
+import com.shocklink.android.viewmodels.ShockerViewModel
 import java.lang.Math.ceil
 import java.lang.Math.round
 import java.math.BigDecimal
@@ -59,22 +62,39 @@ import kotlin.math.roundToInt
 @Composable
 fun ShockerBox(
     context: Context,
+    /*viewModel: ShockerViewModel,
+    shockerId: String,*/
     shocker: Shocker,
     ownShocker: Boolean,
-    onEventClicked: (shocker: Shocker, mode: ControlType, duration: UInt, intensity: Byte) -> Unit) {
+    onEventClicked: (shocker: Shocker, mode: ControlType, duration: UInt, intensity: Byte) -> Unit,
+    onPauseClicked: (id: String, pause: Boolean) -> Unit) {
     val displayMetrics = context.resources.displayMetrics
     val dpWidth = displayMetrics.widthPixels / displayMetrics.density
     var expanded by remember { mutableStateOf(false) }
     var duration: UInt = 300u
     var intensity: Byte = 1
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)){
-            Box(modifier = Modifier
-                .height(30.dp)
+    /*val shocker = if (ownShocker) {
+        viewModel.ownShockerApiResponse.collectAsState().value
+            .flatMap { it.shockers }
+            .find { it.id == shockerId }
+    } else {
+        viewModel.shockerSharedApiResponse.observeAsState().value
+            ?.flatMap { userDevices -> userDevices.devices }
+            ?.flatMap { it.shockers }
+            ?.find { it.id == shockerId }
+    }*/
+    if(shocker != null) {
+        Card(
+            modifier = Modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.background)) {
+                .padding(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .height(30.dp)
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.background)
+            ) {
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -82,168 +102,207 @@ fun ShockerBox(
                     text = shocker.name,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                IconButton(onClick = { expanded = true }, modifier = Modifier.align(Alignment.TopEnd)) {
-                    Icon(Icons.Filled.MoreVert,
-                    "Menu")
+                IconButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        "Menu"
+                    )
                 }
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                     modifier = Modifier.align(
-                    Alignment.TopEnd),
-                    offset = DpOffset((-500).dp, 0.dp)) {
-                    DropdownMenuItem(text = { Text("Share") }, onClick = { /*TODO*/ }, leadingIcon = {Icon(Icons.Filled.Share, "Share", tint = Color.White)})
-                    DropdownMenuItem(text = { Text("Unpause") }, onClick = { /*TODO*/ }, leadingIcon = {Icon(Icons.Filled.PlayArrow, "Unpause", tint = Color.White)})
-                    DropdownMenuItem(text = { Text("Logs") }, onClick = { /*TODO*/ }, leadingIcon = {Icon(Icons.Filled.List, "Show Logs", tint = Color.White)})
-                    DropdownMenuItem(text = { Text("Edit") }, onClick = { /*TODO*/ }, leadingIcon = {Icon(Icons.Filled.Edit, "Edit Shocker", tint = Color.White)})
-                    DropdownMenuItem(text = { Text("Remove") }, onClick = { /*TODO*/ }, leadingIcon = {Icon(Icons.Filled.Delete, "Remove Shocker/Share", tint = Color.White)})
-                }
-            }
-        if(!shocker.isPaused)
-        {
-            Box(modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally)
-                .background(color = MaterialTheme.colorScheme.surface)) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Center)
+                        Alignment.TopEnd
+                    ),
+                    offset = DpOffset((-500).dp, 0.dp)
                 ) {
-                    Row(
+                    DropdownMenuItem(
+                        text = { Text("Share") },
+                        onClick = { /*TODO*/ },
+                        leadingIcon = { Icon(Icons.Filled.Share, "Share", tint = Color.White) })
+                    DropdownMenuItem(
+                        text = { if (shocker.isPaused) Text("Unpause") else Text("Pause") },
+                        onClick = {
+                            onPauseClicked(shocker.id, !shocker.isPaused); expanded = false
+                        },
+                        leadingIcon = { Icon(Icons.Filled.PlayArrow, "Pause", tint = Color.White) })
+                    DropdownMenuItem(
+                        text = { Text("Logs") },
+                        onClick = { /*TODO*/ },
+                        leadingIcon = { Icon(Icons.Filled.List, "Show Logs", tint = Color.White) })
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = { /*TODO*/ },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Filled.Edit,
+                                "Edit Shocker",
+                                tint = Color.White
+                            )
+                        })
+                    DropdownMenuItem(
+                        text = { Text("Remove") },
+                        onClick = { /*TODO*/ },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Filled.Delete,
+                                "Remove Shocker/Share",
+                                tint = Color.White
+                            )
+                        })
+                }
+            }
+            if (!shocker.isPaused) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .background(color = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.Center)
                     ) {
-                        Column() {
-                            CircularSlider(
-                                modifier = Modifier
-                                    .size(((dpWidth / 2) - 8).dp),
-                                maxValue = 100f,
-                                minValue = 1f,
-                                textColor = MaterialTheme.colorScheme.onSurface,
-                                progressColor = MaterialTheme.colorScheme.primary,
-                                onChange = { fl: Float ->
-                                    intensity = fl.toInt().toByte()
-                                }
-                            )
-                            Text(
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = "INTENSITY",
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        ) {
+                            Column() {
+                                CircularSlider(
+                                    modifier = Modifier
+                                        .size(((dpWidth / 2) - 8).dp),
+                                    maxValue = 100f,
+                                    minValue = 1f,
+                                    textColor = MaterialTheme.colorScheme.onSurface,
+                                    progressColor = MaterialTheme.colorScheme.primary,
+                                    onChange = { fl: Float ->
+                                        intensity = fl.toInt().toByte()
+                                    }
+                                )
+                                Text(
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    text = "INTENSITY",
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Column() {
+                                CircularSlider(
+                                    modifier = Modifier
+                                        .size(((dpWidth / 2) - 8).dp)
+                                        .align(Alignment.End),
+                                    maxValue = 30f,
+                                    minValue = 0.3f,
+                                    numbersAfterComma = 1,
+                                    textColor = MaterialTheme.colorScheme.onSurface,
+                                    progressColor = MaterialTheme.colorScheme.primary,
+                                    onChange = { fl: Float ->
+                                        duration = roundNumberAndReturnUInt(fl)
+                                    }
+                                )
+                                Text(
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    text = "DURATION",
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
-                        Column() {
-                            CircularSlider(
-                                modifier = Modifier
-                                    .size(((dpWidth / 2) - 8).dp)
-                                    .align(Alignment.End),
-                                maxValue = 30f,
-                                minValue = 0.3f,
-                                numbersAfterComma = 1,
-                                textColor = MaterialTheme.colorScheme.onSurface,
-                                progressColor = MaterialTheme.colorScheme.primary,
-                                onChange = { fl: Float ->
-                                    duration = roundNumberAndReturnUInt(fl)
-                                }
-                            )
-                            Text(
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = "DURATION",
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .align(Alignment.CenterHorizontally)
-                    ) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .align(Alignment.CenterHorizontally)
+                        ) {
 
-                        IconButton(
-                            onClick = {
-                                onEventClicked(
-                                    shocker,
-                                    ControlType.Beep,
-                                    duration,
-                                    intensity
+                            IconButton(
+                                onClick = {
+                                    onEventClicked(
+                                        shocker,
+                                        ControlType.Beep,
+                                        duration,
+                                        intensity
+                                    )
+                                },
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(15.dp)
+                                    ),
+                                enabled = shocker.permSound || ownShocker
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_volume_up_24),
+                                    "Beep",
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
-                            },
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(15.dp)
-                                ),
-                            enabled = shocker.permSound || ownShocker
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.baseline_volume_up_24),
-                                "Beep",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                onEventClicked(
-                                    shocker,
-                                    ControlType.Vibrate,
-                                    duration,
-                                    intensity
+                            }
+                            IconButton(
+                                onClick = {
+                                    onEventClicked(
+                                        shocker,
+                                        ControlType.Vibrate,
+                                        duration,
+                                        intensity
+                                    )
+                                },
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(15.dp)
+                                    ),
+                                enabled = shocker.permVibrate || ownShocker
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_waves_24),
+                                    "Vibrate",
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
-                            },
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(15.dp)
-                                ),
-                            enabled = shocker.permVibrate || ownShocker
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.baseline_waves_24),
-                                "Vibrate",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                onEventClicked(
-                                    shocker,
-                                    ControlType.Shock,
-                                    duration,
-                                    intensity
+                            }
+                            IconButton(
+                                onClick = {
+                                    onEventClicked(
+                                        shocker,
+                                        ControlType.Shock,
+                                        duration,
+                                        intensity
+                                    )
+                                },
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(15.dp)
+                                    ),
+                                enabled = shocker.permShock || ownShocker
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.baseline_bolt_24),
+                                    "Shock",
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
-                            },
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(15.dp)
-                                ),
-                            enabled = shocker.permShock || ownShocker
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.baseline_bolt_24),
-                                "Shock",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
+                            }
                         }
                     }
                 }
-            }
-        }
-        else{
-            Box(modifier = Modifier
-                .height(30.dp)
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)) {
-                Text(
+            } else {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(4.dp),
-                    text = "IS PAUSED",
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                        .height(30.dp)
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.background)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(4.dp),
+                        text = "IS PAUSED",
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         }
     }

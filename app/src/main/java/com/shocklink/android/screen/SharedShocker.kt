@@ -48,7 +48,7 @@ fun SharedShockerPage(navController: NavHostController, viewModel: ShockerViewMo
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background)
                     .verticalScroll(rememberScrollState())){
-                for (user in shockerApiResponse!!.data){
+                for (user in shockerApiResponse!!){
                     for (device in user.devices){
                         Row(
                             Modifier
@@ -76,7 +76,7 @@ fun SharedShockerPage(navController: NavHostController, viewModel: ShockerViewMo
                                 for(shocker in device.shockers){
                                     ShockerBox(context = context, shocker, false, onEventClicked = { shockerB: Shocker, controlType: ControlType, duration: UInt, intensity: Byte ->
                                         viewModel.sendCommand(shockerB.id, controlType, duration, intensity)
-                                    })
+                                    }, { s: String, b: Boolean -> })
                                 }
 
                             }
