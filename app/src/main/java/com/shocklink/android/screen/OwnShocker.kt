@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.shocklink.android.api.models.Hub.ControlType
+import com.shocklink.android.api.models.Request.Permissions
 import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.screen.views.ShareDialog
 import com.shocklink.android.screen.views.ShockerBox
@@ -41,13 +42,14 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
     LaunchedEffect(Unit) {
         viewModel.fetchOwnShockerApiResponse()
     }
+    var currentShareShocker = remember { mutableStateOf("") }
 
     when {
         shockerApiResponse != null -> {
             if (showDialog) {
                 ShareDialog(
-                    onConfirm = {
-                        // Handle confirm action
+                    onConfirm = {vibrate: Boolean, shocking: Boolean, beep: Boolean, duration: Int?, intensity: Int? ->
+                                viewModel.createShareForShocker(currentShareShocker.value, Permissions(vibrate = vibrate, shock = shocking, sound = beep), intensity?: 100, duration?: 30000)
                     },
                     onCancel = {
                         // Handle cancel action
@@ -79,6 +81,9 @@ fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel
                                     viewModel.sendCommand(shockerB.id, controlType, duration, intensity)
                                 }, onPauseClicked = { id: String, pause: Boolean ->
                                     viewModel.pauseShocker(id, pause)
+                                }, onShareClicked = {
+                                    currentShareShocker.value = it
+                                    showDialog = true
                                 })
                             }
                         }
