@@ -22,7 +22,10 @@ import com.shocklink.android.api.models.Device
 import com.shocklink.android.api.models.Hub.DeviceOnlineState
 import com.shocklink.android.api.models.MessageDataListResponse
 import com.shocklink.android.api.models.MessageDataResponse
+import com.shocklink.android.api.models.Request.Limits
 import com.shocklink.android.api.models.Request.PauseRequest
+import com.shocklink.android.api.models.Request.Permissions
+import com.shocklink.android.api.models.Request.ShareRequest
 import com.shocklink.android.api.models.User
 import com.shocklink.android.util.TokenManager
 import kotlinx.coroutines.launch
@@ -72,6 +75,23 @@ class ShockerViewModel(private val context: Context, private val navController: 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     _shockerSharedApiResponse.value = apiResponse?.data
+                } else {
+                    // Handle error case
+                }
+            } catch (e: Exception) {
+                Log.e("ShockerViewModel", e.toString())
+            }
+        }
+    }
+
+    fun createShareForShocker(id: String, permissions: Permissions, limitIntensity: Int?, limitDuration: Int?){
+        viewModelScope.launch {
+            try {
+                var shareRequest = ShareRequest(permissions, Limits(limitIntensity ?: 100, limitDuration ?: 30000 ))
+                val response = ApiClient.getShockerApiService(context).createShare(id, shareRequest)
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    //_shockerSharedApiResponse.value = apiResponse?.data
                 } else {
                     // Handle error case
                 }

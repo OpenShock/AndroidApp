@@ -4,6 +4,7 @@ import com.shocklink.android.api.models.Device
 import com.shocklink.android.api.models.MessageDataListResponse
 import com.shocklink.android.api.models.MessageDataResponse
 import com.shocklink.android.api.models.Request.PauseRequest
+import com.shocklink.android.api.models.Request.ShareRequest
 import com.shocklink.android.api.models.User
 import retrofit2.Response
 import retrofit2.http.Body
@@ -19,6 +20,9 @@ interface ShockerApiService {
 
     @GET("shockers/shared")
     suspend fun sharedShocker(): Response<MessageDataListResponse<User>>
+
+    @POST("shockers/{shockerId}/shares")
+    suspend fun createShare(@Path("shockerId") shockerId: String, @Body pause: ShareRequest): Response<MessageDataResponse<String>>
 
     @POST("shockers/{shockerId}/pause")
     suspend fun pauseShocker(@Path("shockerId") shockerId: String, @Body pause: PauseRequest): Response<MessageDataResponse<Boolean>>

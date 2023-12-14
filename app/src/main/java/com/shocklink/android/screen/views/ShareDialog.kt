@@ -27,9 +27,12 @@ import com.shocklink.android.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareDialog (
-    onConfirm: () -> Unit,
+    onConfirm: (vibrate: Boolean, shocking: Boolean, beep: Boolean, duration: Int?, intensity: Int?) -> Unit,
     onCancel: () -> Unit
 ) {
+    var shock = true
+    var vibrate = true
+    var beep = true
     Dialog(
         onDismissRequest = onCancel,
     ) {
@@ -117,9 +120,42 @@ fun ShareDialog (
                                 .padding(bottom = 16.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            CheckboxInRow(text = "Shock")
-                            CheckboxInRow(text = "Vibrate")
-                            CheckboxInRow(text = "Beep")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier
+                                    .clickable { shock = !shock }
+                            ) {
+                                Checkbox(
+                                    checked = shock,
+                                    onCheckedChange = { shock = it },
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier
+                                    .clickable { vibrate = !vibrate }
+                            ) {
+                                Checkbox(
+                                    checked = vibrate,
+                                    onCheckedChange = { vibrate = it },
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier
+                                    .clickable { beep = !beep }
+                            ) {
+                                Checkbox(
+                                    checked = beep,
+                                    onCheckedChange = { beep = it },
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
                         }
 
                         // Text boxes
@@ -152,7 +188,7 @@ fun ShareDialog (
                         ) {
                             Button(
                                 onClick = {
-                                    onConfirm()
+                                    onConfirm(vibrate, shock, beep, null, null)
                                     onCancel()
                                 },
                                 modifier = Modifier.weight(1f)
@@ -176,7 +212,7 @@ fun ShareDialog (
 
 @Composable
 fun CheckboxInRow(text: String) {
-    var checked by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(true) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
