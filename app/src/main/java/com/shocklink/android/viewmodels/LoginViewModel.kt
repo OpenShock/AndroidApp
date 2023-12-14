@@ -5,16 +5,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shocklink.android.api.ApiClient
-import com.shocklink.android.api.models.LoginRequest
-import com.shocklink.android.api.models.LoginResponse
+import com.shocklink.android.api.models.Request.LoginRequest
 import com.shocklink.android.util.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.http.Headers
 
 class LoginViewModel(private val application: Application): ViewModel() {
     private val _loginStatus = MutableStateFlow<LoginStatus?>(null)

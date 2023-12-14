@@ -1,4 +1,4 @@
-package com.shocklink.android.api.models
+package com.shocklink.android.api.models.Hub
 
 enum class ControlType(val controlType: Int) {
     Shock(1),

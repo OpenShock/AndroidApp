@@ -31,10 +31,7 @@ fun ShareDialog (
     onCancel: () -> Unit
 ) {
     Dialog(
-
         onDismissRequest = onCancel,
-
-
     ) {
         val interactionSource = remember { MutableInteractionSource() }
         Box(

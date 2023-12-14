@@ -1,4 +1,4 @@
-package com.shocklink.android.api.models
+package com.shocklink.android.api.models.Hub
 
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min

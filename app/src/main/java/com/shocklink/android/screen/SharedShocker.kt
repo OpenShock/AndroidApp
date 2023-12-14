@@ -28,7 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shocklink.android.R
-import com.shocklink.android.api.models.ControlType
+import com.shocklink.android.api.models.Hub.ControlType
 import com.shocklink.android.api.models.Shocker
 import com.shocklink.android.screen.views.ShockerBox
 import com.shocklink.android.viewmodels.ShockerViewModel

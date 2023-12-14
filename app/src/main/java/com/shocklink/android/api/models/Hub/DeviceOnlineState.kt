@@ -1,4 +1,4 @@
-package com.shocklink.android.api.models
+package com.shocklink.android.api.models.Hub
 
 data class DeviceOnlineState(
     val device: String,

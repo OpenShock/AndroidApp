@@ -16,19 +16,17 @@ import com.microsoft.signalr.HubConnectionState
 import com.shocklink.android.Routes
 import com.shocklink.android.api.ApiClient
 import com.shocklink.android.api.UserHubClient
-import com.shocklink.android.api.models.Control
-import com.shocklink.android.api.models.ControlType
+import com.shocklink.android.api.models.Hub.Control
+import com.shocklink.android.api.models.Hub.ControlType
 import com.shocklink.android.api.models.Device
-import com.shocklink.android.api.models.DeviceOnlineState
-import com.shocklink.android.api.models.PauseRequest
-import com.shocklink.android.api.models.ShockerResponse
-import com.shocklink.android.api.models.ShockerSharedResponse
+import com.shocklink.android.api.models.Hub.DeviceOnlineState
+import com.shocklink.android.api.models.MessageDataListResponse
+import com.shocklink.android.api.models.MessageDataResponse
+import com.shocklink.android.api.models.Request.PauseRequest
 import com.shocklink.android.api.models.User
 import com.shocklink.android.util.TokenManager
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.lang.reflect.Type
 
 class ShockerViewModel(private val context: Context, private val navController: NavController) : ViewModel() {
