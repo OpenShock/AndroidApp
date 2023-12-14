@@ -20,6 +20,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +32,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.shocklink.android.api.models.ControlType
 import com.shocklink.android.api.models.Shocker
+import com.shocklink.android.screen.views.ShareDialog
 import com.shocklink.android.screen.views.ShockerBox
 import com.shocklink.android.ui.theme.ShockLinkAndroidTheme
 import com.shocklink.android.viewmodels.ShockerViewModel
@@ -36,13 +40,24 @@ import com.shocklink.android.viewmodels.ShockerViewModel
 @Composable
 fun OwnShockerPage(navController: NavHostController, viewModel: ShockerViewModel, context: Context) {
     val shockerApiResponse by viewModel.ownShockerApiResponse.observeAsState()
-
+    var showDialog by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.fetchOwnShockerApiResponse()
     }
 
     when {
         shockerApiResponse != null -> {
+            if (showDialog) {
+                ShareDialog(
+                    onConfirm = {
+                        // Handle confirm action
+                    },
+                    onCancel = {
+                        // Handle cancel action
+                        showDialog = false
+                    }
+                )
+            }
             Box(
                 Modifier
                     .fillMaxSize()
