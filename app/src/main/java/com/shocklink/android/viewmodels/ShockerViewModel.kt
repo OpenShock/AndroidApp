@@ -93,7 +93,7 @@ class ShockerViewModel(private val context: Context, private val navController: 
 
                     val updatedDevices = currentDevices?.map { device ->
                         val updatedShockers = device.shockers.map { shocker ->
-                            if (shocker.id == id) shocker.copy(isPaused = apiResponse!!.data) else shocker
+                            if (shocker.id == id) shocker.copy(isPaused = apiResponse?.data ?: !pause) else shocker
                         }
                         device.copy(shockers = updatedShockers)
                     }

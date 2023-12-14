@@ -1,4 +1,7 @@
 package com.shocklink.android.screen
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -54,6 +58,7 @@ import com.shocklink.android.viewmodels.LoginViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPage(navController: NavHostController, viewModel: LoginViewModel){
+    var context = LocalContext.current
     val offset = Offset(0.0f, 4.0f)
     val loginStatus by viewModel.loginStatus.collectAsState()
     val loginGoingOn = remember { mutableStateOf(false) }
@@ -147,7 +152,7 @@ fun LoginPage(navController: NavHostController, viewModel: LoginViewModel){
             Spacer(modifier = Modifier.height(20.dp))
             ClickableText(
                 text = AnnotatedString("Forgot password?"),
-                onClick = { navController.navigate(Routes.ForgotPassword.route) },
+                onClick = { openLink(context, "https://shocklink.net/#/account/password/reset") },
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Default,
@@ -163,7 +168,7 @@ fun LoginPage(navController: NavHostController, viewModel: LoginViewModel){
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(20.dp),
-            onClick = { navController.navigate(Routes.SignUp.route) },
+            onClick = { openLink(context, "https://shocklink.net/#/account/signup")},
             style = TextStyle(
                 fontSize = 14.sp,
                 fontFamily = FontFamily.Default,
@@ -172,7 +177,11 @@ fun LoginPage(navController: NavHostController, viewModel: LoginViewModel){
             )
         )
     }
+}
+fun openLink(context: Context, url: String) {
 
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    context.startActivity(intent)
 }
 @Preview(showBackground = true)
 @Composable
